@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { format, parseISO } from "date-fns";
-import { DollarSign, CreditCard, CalendarCheck, Plus } from "lucide-react";
+import { DollarSign, CreditCard, TrendingUp, Plus } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
@@ -9,7 +8,7 @@ import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
 import { DeleteConfirmDialog } from "@/components/subscriptions/DeleteConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
-import { formatCurrency, getDaysUntilRenewal } from "@/lib/subscriptions";
+import { formatCurrency } from "@/lib/subscriptions";
 import type { Subscription } from "@/types/subscription";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,8 +20,8 @@ const Index = () => {
     updateSubscription,
     deleteSubscription,
     totalMonthly,
+    totalYearly,
     upcomingRenewals,
-    nextRenewal,
   } = useSubscriptions();
 
   const { toast } = useToast();
@@ -86,19 +85,6 @@ const Index = () => {
     );
   }
 
-  const nextRenewalText = nextRenewal
-    ? `${nextRenewal.name} on ${format(parseISO(nextRenewal.nextRenewalDate), "MMM d")}`
-    : "No subscriptions";
-
-  const daysUntilNext = nextRenewal ? getDaysUntilRenewal(nextRenewal.nextRenewalDate) : null;
-  const nextRenewalSubtitle = daysUntilNext !== null
-    ? daysUntilNext === 0
-      ? "Today"
-      : daysUntilNext === 1
-      ? "Tomorrow"
-      : `In ${daysUntilNext} days`
-    : undefined;
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -110,7 +96,7 @@ const Index = () => {
             <SummaryCard
               title="Monthly Spending"
               value={formatCurrency(totalMonthly)}
-              subtitle="Estimated total"
+              subtitle="Estimated per month"
               icon={<DollarSign className="w-5 h-5" />}
               variant="primary"
             />
@@ -121,11 +107,11 @@ const Index = () => {
               icon={<CreditCard className="w-5 h-5" />}
             />
             <SummaryCard
-              title="Next Renewal"
-              value={nextRenewal ? format(parseISO(nextRenewal.nextRenewalDate), "MMM d") : "—"}
-              subtitle={nextRenewalSubtitle}
-              icon={<CalendarCheck className="w-5 h-5" />}
-              variant={daysUntilNext !== null && daysUntilNext <= 3 ? "warning" : "default"}
+              title="Yearly Spending"
+              value={formatCurrency(totalYearly)}
+              subtitle="Projected annually"
+              icon={<TrendingUp className="w-5 h-5" />}
+              variant="default"
             />
           </div>
         </section>
