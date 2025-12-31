@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DollarSign, CreditCard, TrendingUp, Plus } from "lucide-react";
+import { IndianRupee, CreditCard, TrendingUp, Plus } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
@@ -97,7 +97,7 @@ const Index = () => {
               title="Monthly Spending"
               value={formatCurrency(totalMonthly)}
               subtitle="Estimated per month"
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<IndianRupee className="w-5 h-5" />}
               variant="primary"
             />
             <SummaryCard
