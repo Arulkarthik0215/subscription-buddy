@@ -58,6 +58,10 @@ export const useSubscriptions = () => {
     }, 0);
   }, [subscriptions]);
 
+  const totalYearly = useMemo(() => {
+    return totalMonthly * 12;
+  }, [totalMonthly]);
+
   const upcomingRenewals = useMemo(() => {
     return subscriptions
       .filter((sub) => getDaysUntilRenewal(sub.nextRenewalDate) <= 7)
@@ -81,6 +85,7 @@ export const useSubscriptions = () => {
     updateSubscription,
     deleteSubscription,
     totalMonthly,
+    totalYearly,
     upcomingRenewals,
     nextRenewal,
   };

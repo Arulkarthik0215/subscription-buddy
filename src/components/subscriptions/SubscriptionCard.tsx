@@ -1,6 +1,7 @@
 import { format, parseISO } from "date-fns";
-import { Pencil, Trash2, Calendar, RefreshCw } from "lucide-react";
+import { Pencil, Trash2, Calendar, RefreshCw, Tag } from "lucide-react";
 import type { Subscription } from "@/types/subscription";
+import { CATEGORIES } from "@/types/subscription";
 import { formatCurrency, getDaysUntilRenewal, getMonthlyAmount } from "@/lib/subscriptions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ interface SubscriptionCardProps {
 export const SubscriptionCard = ({ subscription, onEdit, onDelete, index }: SubscriptionCardProps) => {
   const daysUntil = getDaysUntilRenewal(subscription.nextRenewalDate);
   const monthlyAmount = getMonthlyAmount(subscription.amount, subscription.billingCycle);
+  const categoryLabel = CATEGORIES.find(c => c.value === subscription.category)?.label || "Other";
 
   return (
     <div 
@@ -25,6 +27,10 @@ export const SubscriptionCard = ({ subscription, onEdit, onDelete, index }: Subs
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{subscription.name}</h3>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Tag className="w-3.5 h-3.5" />
+              {categoryLabel}
+            </span>
             <span className="flex items-center gap-1">
               <RefreshCw className="w-3.5 h-3.5" />
               {subscription.billingCycle === "monthly" ? "Monthly" : "Yearly"}

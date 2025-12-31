@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import type { Subscription, BillingCycle, ReminderDays } from "@/types/subscription";
+import type { Subscription, BillingCycle, ReminderDays, Category } from "@/types/subscription";
+import { CATEGORIES } from "@/types/subscription";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,10 +32,11 @@ import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  amount: z.coerce.number().min(1, "Amount must be greater than 0"),
   billingCycle: z.enum(["monthly", "yearly"]),
   startDate: z.date({ required_error: "Start date is required" }),
   reminderDays: z.coerce.number().refine((val) => [1, 3, 7].includes(val), "Invalid reminder option"),
+  category: z.enum(["entertainment", "productivity", "utilities", "shopping", "health", "education", "other"]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -66,11 +68,13 @@ export const SubscriptionForm = ({
       amount: 0,
       billingCycle: "monthly",
       reminderDays: 3,
+      category: "other",
     },
   });
 
   const watchedDate = watch("startDate");
   const watchedBillingCycle = watch("billingCycle");
+  const watchedCategory = watch("category");
 
   useEffect(() => {
     if (editingSubscription) {
@@ -80,6 +84,7 @@ export const SubscriptionForm = ({
         billingCycle: editingSubscription.billingCycle,
         startDate: new Date(editingSubscription.startDate),
         reminderDays: editingSubscription.reminderDays,
+        category: editingSubscription.category || "other",
       });
     } else {
       reset({
@@ -88,6 +93,7 @@ export const SubscriptionForm = ({
         billingCycle: "monthly",
         startDate: undefined,
         reminderDays: 3,
+        category: "other",
       });
     }
   }, [editingSubscription, reset, open]);
@@ -99,6 +105,7 @@ export const SubscriptionForm = ({
       billingCycle: data.billingCycle as BillingCycle,
       startDate: format(data.startDate, "yyyy-MM-dd"),
       reminderDays: data.reminderDays as ReminderDays,
+      category: data.category as Category,
     });
     onOpenChange(false);
   };
@@ -127,12 +134,12 @@ export const SubscriptionForm = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount ($)</Label>
+              <Label htmlFor="amount">Amount (₹)</Label>
               <Input
                 id="amount"
                 type="number"
-                step="0.01"
-                placeholder="9.99"
+                step="1"
+                placeholder="499"
                 {...register("amount")}
                 className={cn(errors.amount && "border-destructive")}
               />
@@ -150,12 +157,31 @@ export const SubscriptionForm = ({
                 <SelectTrigger>
                   <SelectValue placeholder="Select cycle" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover">
                   <SelectItem value="monthly">Monthly</SelectItem>
                   <SelectItem value="yearly">Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select
+              value={watchedCategory}
+              onValueChange={(value) => setValue("category", value as Category)}
+            >
+              <SelectTrigger className={cn(errors.category && "border-destructive")}>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover">
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -174,7 +200,7 @@ export const SubscriptionForm = ({
                   {watchedDate ? format(watchedDate, "PPP") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-popover" align="start">
                 <Calendar
                   mode="single"
                   selected={watchedDate}
@@ -198,7 +224,7 @@ export const SubscriptionForm = ({
               <SelectTrigger>
                 <SelectValue placeholder="Select reminder" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover">
                 <SelectItem value="1">1 day before</SelectItem>
                 <SelectItem value="3">3 days before</SelectItem>
                 <SelectItem value="7">7 days before</SelectItem>
